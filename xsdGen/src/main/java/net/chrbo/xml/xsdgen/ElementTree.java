@@ -7,7 +7,19 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.function.BinaryOperator;
 
-public class ElementTree {
+/**
+ * The ElementTree is used by XsdGenerator to extract the structure of the XML file in form a tree and then generate the XSD for the tree. 
+ * 
+ * The class represents an element of the XML file by keeping a list of attributes and possible child elements of this element. 
+ * It is assumed that child elements have a unique name. Therefore if a new child is added (via addChild) and a child with
+ * the same name already exists, both children are merged together (via mergeTrees).
+ * Ultimately the class is used to generate the XSD entry for an element (via getXsdElement).
+ *  
+ * @author borisbreidenbach
+ *
+ */
+class ElementTree {
+  
   private List<ElementTree> childList = new LinkedList<ElementTree>();
   private Map<String, Attribute> attributes = new HashMap<String, Attribute>();
   private boolean isAllowedCData = false;
@@ -18,23 +30,9 @@ public class ElementTree {
   public ElementTree(String name) {
     this.name = name;
   }
-  
-  public boolean isAllowedCData() {
-    return this.isAllowedCData;
-  }
-  
+    
   public void allowCData() {
     isAllowedCData = true;
-  }
-  
-  public ElementTree setOptional() {
-    minOccurs = "0";
-    return this;
-  }
-  
-  public ElementTree setMultiplesAllowed() {
-    maxOccurs = "unbounded";
-    return this;
   }
   
   public String getXsdElement() {
@@ -47,7 +45,30 @@ public class ElementTree {
     out.append("\n</xs:element>");
     return out.toString();
   }
+  
+  public void addAttribute(Attribute attribute) {
+    attributes.put(attribute.name(), attribute);
+  }
 
+  public void addChild(ElementTree tree) {
+    if (hasChild(tree.name)) {
+      ElementTree child = getChild(tree.name); 
+      replaceChild(child.name, mergeTrees(child, tree).setMultiplesAllowed());
+    } else { 
+      childList.add(tree);
+    }
+  }
+
+  private ElementTree setOptional() {
+    minOccurs = "0";
+    return this;
+  }
+  
+  private ElementTree setMultiplesAllowed() {
+    maxOccurs = "unbounded";
+    return this;
+  }
+  
   private String getElementTag() {
     StringBuilder out = new StringBuilder();
     out.append("<xs:element name=\"").append(name)
@@ -67,15 +88,13 @@ public class ElementTree {
   private boolean isSimpleElement() {
     return childList.isEmpty() && attributes.isEmpty();
   }
+  
   private String getTypeTags() {
     StringBuilder out = new StringBuilder();
     
     if (!isSimpleElement()) {
       out.append(getComplexType());
-    } else {
-      //out.append("<xs:simpleType>");
-      //out.append("\n</xs:simpleType>");
-    }
+    } 
     
     return out.toString();
   }
@@ -96,20 +115,7 @@ public class ElementTree {
     return out.append("\n</xs:complexType>").toString();
   }
 
-  public void addAttribute(Attribute attribute) {
-    attributes.put(attribute.name(), attribute);
-  }
-
-  public void addChild(ElementTree tree) {
-    if (hasChild(tree.name)) {
-      ElementTree child = getChild(tree.name); 
-      replaceChild(child.name, mergeTrees(child, tree).setMultiplesAllowed());
-    } else { 
-      childList.add(tree);
-    }
-  }
-
-  private void replaceChild(String name, ElementTree tree) {
+    private void replaceChild(String name, ElementTree tree) {
     ListIterator<ElementTree> it = childList.listIterator();
     while (it.hasNext()) {
       if ( (it.next()).name.equals(name)) {

@@ -14,6 +14,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * The XsdGenerator class builds the XSD from an XML file. The XML is provided as an InputStream and the XSD is obtained as a String.
+ * 
+ * @author borisbreidenbach
+ *
+ */
 public class XsdGenerator {
 
   private final InputStream is;
@@ -21,10 +27,21 @@ public class XsdGenerator {
   private final String footer = "\n</xs:schema>";
   private String xsd;
 
+  /** 
+   * Constructor
+   * @param is InputStream providing the XML
+   */
   public XsdGenerator(InputStream is) {
     this.is = is;
   }
 
+  /** 
+   * Returns the XSD generated from the XML
+   * @return xsd as String
+   * @throws ParserConfigurationException
+   * @throws SAXException
+   * @throws IOException
+   */
   public String getXsd() throws ParserConfigurationException, SAXException, IOException {
     if (xsd == null) {
       DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
