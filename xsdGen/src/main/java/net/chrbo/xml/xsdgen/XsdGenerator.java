@@ -17,8 +17,10 @@ import org.xml.sax.SAXException;
 public class XsdGenerator {
 
   private final InputStream is;
+  private final String header = "<?xml version=\"1.0\"?>\n<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n";
+  private final String footer = "\n</xs:schema>";
   private String xsd;
-  
+
   public XsdGenerator(InputStream is) {
     this.is = is;
   }
@@ -29,36 +31,43 @@ public class XsdGenerator {
       Document doc = db.parse(is);
       Element root = doc.getDocumentElement();
       ElementTree tree = buildTree(root);
-      xsd = tree.getXsdElement();
+      xsd = header + tree.getXsdElement() + footer;
     }
     return xsd;
   }
 
   private ElementTree buildTree(Node root) {
     ElementTree tree = new ElementTree(root.getNodeName());
-    
-    NamedNodeMap attr = root.getAttributes();
-    for (int i=0; i<attr.getLength(); i++) {
-      tree.addAttribute(new Attribute(attr.item(i).getNodeName()));
+
+    if (root.hasAttributes()) {
+      NamedNodeMap attr = root.getAttributes();
+      for (int i=0; i<attr.getLength(); i++) {
+        tree.addAttribute(new Attribute(attr.item(i).getNodeName()));
+      }
     }
-    
+
     NodeList nl = root.getChildNodes();
     if (isTextAllowed(nl)) {
       tree.allowCData();
     }
     for (int i=0; i<nl.getLength(); i++) {
-      tree.addChild(buildTree(nl.item(i)));
+      if (!isTextNode(nl.item(i))) {
+        tree.addChild(buildTree(nl.item(i)));
+      }
     }
-    
+
     return tree;
   }
 
   private boolean isTextAllowed(NodeList nl) {
     boolean mixedAllowed = false;
     for (int i=0; i<nl.getLength(); i++) {
-      mixedAllowed |= nl.item(i).getNodeValue()=="#text";
+      mixedAllowed |= isTextNode(nl.item(i));
     }
     return mixedAllowed;
   }
 
+  private boolean isTextNode(Node n) {
+    return n.getNodeName().equals("#text");
+  }
 }
