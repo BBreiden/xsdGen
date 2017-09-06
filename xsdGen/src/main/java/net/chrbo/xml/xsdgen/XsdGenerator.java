@@ -23,27 +23,38 @@ import org.xml.sax.SAXException;
  */
 public class XsdGenerator {
 
-  private final InputStream is;
   private final String header = "<?xml version=\"1.0\"?>\n<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n";
   private final String footer = "\n</xs:schema>";
-  private String xsd;
-
+  private ElementTree tree;
+  
   /** 
    * Constructor
    * @param is InputStream providing the XML
+   * @throws ParserConfigurationException 
+   * @throws IOException 
+   * @throws SAXException 
    */
-  public XsdGenerator(InputStream is) {
-    this.is = is;
+  public XsdGenerator parse(InputStream is) throws ParserConfigurationException, SAXException, IOException {
+    DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    Document doc = db.parse(is);
+    Element root = doc.getDocumentElement();
+    tree = buildTree(root);
+    return this;
   }
 
   /** 
    * Constructor
    * @param s String providing the XML
+   * @return 
+   * @throws IOException 
+   * @throws SAXException 
+   * @throws ParserConfigurationException 
    */
-  public XsdGenerator(String s) {
-    this.is = new ByteArrayInputStream(s.getBytes());
+  public XsdGenerator parse(String s) throws ParserConfigurationException, SAXException, IOException {
+    parse(new ByteArrayInputStream(s.getBytes()));
+    return this;
   }
-
+  
   /** 
    * Returns the XSD generated from the XML
    * @return xsd as String
@@ -52,14 +63,11 @@ public class XsdGenerator {
    * @throws IOException
    */
   public String getXsd() throws ParserConfigurationException, SAXException, IOException {
-    if (xsd == null) {
-      DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-      Document doc = db.parse(is);
-      Element root = doc.getDocumentElement();
-      ElementTree tree = buildTree(root);
-      xsd = header + tree.getXsdElement() + footer;
+    String t = "";
+    if (tree!=null) {
+      t = tree.getXsdElement();
     }
-    return xsd;
+    return header + t + footer;
   }
 
   private ElementTree buildTree(Node root) {

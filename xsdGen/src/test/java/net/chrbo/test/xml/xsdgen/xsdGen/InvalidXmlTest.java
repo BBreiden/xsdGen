@@ -34,7 +34,8 @@ public class InvalidXmlTest {
   }
   
   public String getXsd(String s) throws ParserConfigurationException, SAXException, IOException {
-    XsdGenerator gen = new XsdGenerator(new ByteArrayInputStream(s.getBytes()));
+    XsdGenerator gen = new XsdGenerator();
+    gen.parse(new ByteArrayInputStream(s.getBytes()));
     return gen.getXsd();
   }
 

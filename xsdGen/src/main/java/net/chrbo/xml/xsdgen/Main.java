@@ -15,7 +15,7 @@ public class Main {
     for (String fn: args) {
       FileWriter out = null;
       try {
-        XsdGenerator gen = new XsdGenerator(new FileInputStream(new File(fn)));
+        XsdGenerator gen = (new XsdGenerator()).parse(new FileInputStream(new File(fn)));
         out = new FileWriter(new File(fn + ".xsd"));
         out.write(gen.getXsd());
       } catch (IOException e) {

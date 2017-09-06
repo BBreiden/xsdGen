@@ -68,7 +68,7 @@ public class XsdTests extends XsdConsistencyTests {
   
   @Test
   public void runTest() throws ParserConfigurationException, SAXException, IOException {
-    XsdGenerator gen = new XsdGenerator(this.in);
+    XsdGenerator gen = (new XsdGenerator()).parse(this.in);
     String res = gen.getXsd();
     assertTrue("result: >>" + res + "<<\nexpected: >>" + this.exp + "<<",res.equals(this.exp));
     assertTrue("xsd invalid. Input: " + in, TestHelperFunctions.isValidXsd(res));

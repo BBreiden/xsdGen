@@ -46,7 +46,7 @@ public class XsdConsistencyTests {
   
   @Test
   public void runTest() throws ParserConfigurationException, SAXException, IOException {
-    XsdGenerator gen = new XsdGenerator(new ByteArrayInputStream(this.in.getBytes()));
+    XsdGenerator gen = (new XsdGenerator()).parse(new ByteArrayInputStream(this.in.getBytes()));
     String res = gen.getXsd();
     assertTrue("xsd invalid. Input: " + in, TestHelperFunctions.isValidXsd(res));
     assertTrue("input does not conform xsd. Input: " + in, TestHelperFunctions.isValidXml(in, res));
