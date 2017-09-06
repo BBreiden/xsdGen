@@ -38,7 +38,12 @@ public class XsdGenerator {
     DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     Document doc = db.parse(is);
     Element root = doc.getDocumentElement();
-    tree = buildTree(root);
+    ElementTree newTree = buildTree(root);
+    if (tree==null) {
+      tree = newTree;
+    } else {
+      tree = TreeMerger.mergeTrees(tree, newTree);
+    }
     return this;
   }
 
