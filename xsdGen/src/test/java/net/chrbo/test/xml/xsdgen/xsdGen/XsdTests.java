@@ -2,7 +2,6 @@ package net.chrbo.test.xml.xsdgen.xsdGen;
 
 import static org.junit.Assert.*;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,11 +68,11 @@ public class XsdTests extends XsdConsistencyTests {
   
   @Test
   public void runTest() throws ParserConfigurationException, SAXException, IOException {
-    XsdGenerator gen = new XsdGenerator(new ByteArrayInputStream(this.in.getBytes()));
+    XsdGenerator gen = new XsdGenerator(this.in);
     String res = gen.getXsd();
     assertTrue("result: >>" + res + "<<\nexpected: >>" + this.exp + "<<",res.equals(this.exp));
-    assertTrue("xsd invalid. Input: " + in, isValidXsd(res));
-    assertTrue("input does not conform xsd. Input: " + in, isValidXml(in, res));
+    assertTrue("xsd invalid. Input: " + in, TestHelperFunctions.isValidXsd(res));
+    assertTrue("input does not conform xsd. Input: " + in, TestHelperFunctions.isValidXml(in, res));
   }
 
 }

@@ -1,5 +1,6 @@
 package net.chrbo.xml.xsdgen;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -33,6 +34,14 @@ public class XsdGenerator {
    */
   public XsdGenerator(InputStream is) {
     this.is = is;
+  }
+
+  /** 
+   * Constructor
+   * @param s String providing the XML
+   */
+  public XsdGenerator(String s) {
+    this.is = new ByteArrayInputStream(s.getBytes());
   }
 
   /** 

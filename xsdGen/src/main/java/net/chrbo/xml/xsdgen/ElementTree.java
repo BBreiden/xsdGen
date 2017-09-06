@@ -40,7 +40,7 @@ class ElementTree {
     out.append(getElementTag());
     String typeTags = getTypeTags();
     if (!typeTags.isEmpty()) {
-      out.append('\n').append(getTypeTags());
+      out.append('\n').append(typeTags);
     }
     out.append("\n</xs:element>");
     return out.toString();
@@ -93,13 +93,38 @@ class ElementTree {
     StringBuilder out = new StringBuilder();
     
     if (!isSimpleElement()) {
-      out.append(getComplexType());
+      if (isAllowedCData && !childList.isEmpty()) {
+        throw new RuntimeException("Combination of text data and elements currently not handled.");
+      } else if (isAllowedCData && childList.isEmpty()) {
+        out.append(getComplexTypeWithText());
+      } else {
+        out.append(getComplexTypeWithChildren());
+      }
     } 
     
     return out.toString();
   }
 
-  private String getComplexType() {
+  /**
+   * Generates XSD element for an element with text and attributes
+   * @return XSD element as String
+   */
+  private String getComplexTypeWithText() {
+    StringBuilder out = new StringBuilder();
+    out.append("<xs:complexType>")
+    .append("<xs:simpleContent>\n<xs:extension base=\"xs:string\">");
+    for (Attribute a : attributes.values()) {
+      out.append('\n').append(a.getXsdElement());
+    }  
+    out.append("\n</xs:extension>\n</xs:simpleContent>\n</xs:complexType>");
+    return out.toString();
+  }
+
+  /**
+   * Generates XSD element for an element with children and maybe also attributes.
+   * @return XSD element as String
+   */
+  private String getComplexTypeWithChildren() {
     StringBuilder out = new StringBuilder();
     out.append("<xs:complexType>");
     if (!childList.isEmpty()) {
